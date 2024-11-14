@@ -13,6 +13,7 @@ M=0;
 D=M;
 @END
 D;JEQ
+
 @0;
 D=M;
 @2;
@@ -22,5 +23,6 @@ M=M-1;
 D=M;
 @lOOP
 D;JGT
+
 @END
 0;JMP

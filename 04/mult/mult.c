@@ -4,7 +4,7 @@ int main(){
     int R0=1,R1=2;  //@0; D=M; @1; D=M; 
     int sum;    //@R2; M=0;
 
-    for(int i=0; i<R1; i++){
+    for(int i=0; i<R1; i++){    //R0+R0
         sum+=R0;
     }
 /*
