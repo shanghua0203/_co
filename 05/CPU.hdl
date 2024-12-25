@@ -40,4 +40,46 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+    // 檢查指令是否為 A 指令（Ainst = true 表示是 A 指令）
+    Not(in=instruction[15], out=Ainst);
+    // 檢查指令是否為 C 指令（Cinst = true 表示是 C 指令）
+    Not(in=Ainst, out=Cinst);
+
+    // 選擇性地將 A 指令的值或 ALU 的輸出值寫入 A 暫存器
+    Mux16(a=instruction, b=ALUout, sel=Cinst, out=ARegBefore);
+    // 檢查是否需要將值寫入 A 暫存器（C 指令的 d1 位，或 A 指令）
+    And(a=instruction[5], b=Cinst, out=d1); // instruction[5] = d1 如果是 C 指令
+    Or(a=d1, b=Ainst, out=storeAReg);
+    // A 暫存器的值被寫入並輸出為 A 和 addressM
+    ARegister(in=ARegBefore, load=storeAReg, out=A, out[0..14]=addressM);
+
+    // 決定 ALU 的第二個操作數是 A 暫存器的值還是內存值（由指令位 [12] 決定）
+    Mux16(a=A, b=inM, sel=instruction[12], out=MOrA); // instruction[12] = a
+
+    // 檢查是否需要將 ALU 輸出值存入 D 暫存器（C 指令的 d2 位）
+    And(a=instruction[4], b=Cinst, out=d2); // instruction[4] = d2 如果是 C 指令
+    DRegister(in=ALUout, load=d2, out=D);
+
+    // ALU 操作，根據 C 指令中的控制位進行運算
+    ALU(x=D, y=MOrA, zx=instruction[11], nx=instruction[10], zy=instruction[9],
+        ny=instruction[8], f=instruction[7], no=instruction[6], out=ALUout, out=outM, zr=zr, ng=ng
+    );
+
+    // 檢查是否需要將 ALU 輸出值寫入內存（C 指令的 d3 位）
+    And(a=instruction[3], b=Cinst, out=writeM); // instruction[3] = d3 如果是 C 指令
+
+    // 計算跳轉條件
+    Not(in=zr, out=notzr); // 非零標誌
+    Not(in=ng, out=notng); // 非負標誌
+    And(a=notzr, b=notng, out=pos); // 正值標誌
+    And(a=instruction[2], b=ng, out=jneg); // 跳轉到負值
+    And(a=instruction[1], b=zr, out=jzer); // 跳轉到零
+    And(a=instruction[0], b=pos, out=jpos); // 跳轉到正值
+    Or(a=jneg, b=jzer, out=jzerneg);
+    Or(a=jzerneg, b=jpos, out=jumpIfCinst);
+    And(a=jumpIfCinst, b=Cinst, out=jump); // 最終跳轉判斷（只有 C 指令時有效）
+
+    // 更新程序計數器（PC），如果符合跳轉條件則載入新地址，否則自增
+    PC(in=A, load=jump, inc=true, reset=reset, out[0..14]=pc);
+
 }

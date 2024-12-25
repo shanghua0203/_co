@@ -28,4 +28,18 @@ CHIP Memory {
 
     PARTS:
     // Put your code here:
+    // 將負載信號（load）根據 address[14] 分配到 RAM 或屏幕
+    DMux(in=load, sel=address[14], a=loadRam, b=loadScreen);
+
+    // 16K RAM 模組：根據地址 address[0..13] 存取數據
+    RAM16K(in=in, address=address[0..13], load=loadRam, out=outRam);
+    // 屏幕模組：根據地址 address[0..12] 存取數據
+    Screen(in=in, address=address[0..12], load=loadScreen, out=outScreen);
+    // 鍵盤模組：提供鍵盤的輸出值
+    Keyboard(out=outKeyboard);
+
+    // 根據地址高位 address[13..14] 選擇輸出數據
+    // a: RAM 的輸出, b: RAM 的輸出（未使用的冗餘）, c: 屏幕的輸出, d: 鍵盤的輸出
+    Mux4Way16(a=outRam, b=outRam, c=outScreen, d=outKeyboard, sel=address[13..14], out=out);
+
 }
