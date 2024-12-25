@@ -28,4 +28,6 @@ CHIP RAM16K {
     RAM512(in=in, load=load7, address=address[0..8], out=out7);
 
     Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out7, sel=address[9..11], out=out);
+    //2的k次方=4K(由8個RAM4K組成) k=12
+    //sel=address[k..(k+2)]  address=adderss[0..(k-1)]
 }

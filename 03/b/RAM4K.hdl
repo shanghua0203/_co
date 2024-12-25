@@ -24,4 +24,6 @@ CHIP RAM4K {
     RAM4K(in=in, load=load3, address=address[0..11], out=out3);
 
     Mux4Way16(a=out0, b=out1, c=out2, d=out3, sel=address[12..13], out=out);
+    //2的k次方=512(由8個RAM4K組成) k=9
+    //sel=address[k..(k+2)]  address=adderss[0..(k-1)]
 }
