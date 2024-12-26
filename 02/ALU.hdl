@@ -43,21 +43,33 @@ CHIP ALU {
 
     PARTS:
    // Put you code here:
-   Mux16(a=x, b=false, sel=zx, out=x1);
+    // 將輸入 x 通過選擇 zx 決定是否清零（選擇 x 或全零）後輸出到 x1
+    Mux16(a=x, b=false, sel=zx, out=x1);
+    // 將輸入 y 通過選擇 zy 決定是否清零（選擇 y 或全零）後輸出到 y1
     Mux16(a=y, b=false, sel=zy, out=y1);
 
+    // 對 x1 執行逐位取反，結果輸出到 notx1
     Not16(in=x1, out=notx1);
+    // 對 y1 執行逐位取反，結果輸出到 noty1
     Not16(in=y1, out=noty1);
 
+    // 根據 nx 選擇 x1 或 notx1（x1 或其逐位取反值），結果輸出到 x2
     Mux16(a=x1, b=notx1, sel=nx, out=x2);
+    // 根據 ny 選擇 y1 或 noty1（y1 或其逐位取反值），結果輸出到 y2
     Mux16(a=y1, b=noty1, sel=ny, out=y2);
 
+    // 對 x2 和 y2 進行逐位加法，結果輸出到 x2Plusy2
     Add16(a=x2, b=y2, out=x2Plusy2);
+    // 對 x2 和 y2 進行逐位與操作，結果輸出到 x2Andy2
     And16(a=x2, b=y2, out=x2Andy2);
 
+    // 根據 f 選擇 x2Andy2（逐位與）或 x2Plusy2（逐位加法），結果輸出到 xFuncy
     Mux16(a=x2Andy2, b=x2Plusy2, sel=f, out=xFuncy);
 
+    // 對 xFuncy 執行逐位取反，結果輸出到 notxFuncy
     Not16(in=xFuncy, out=notxFuncy);
 
+    // 根據 no 選擇 xFuncy 或 notxFuncy，決定是否取反結果，最終輸出到 out
     Mux16(a=xFuncy, b=notxFuncy, sel=no, out=out);
+
 }
